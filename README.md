@@ -129,4 +129,3 @@ Contact
 For more information, please visit http://opentimeline.io/
 or https://github.com/PixarAnimationStudios/OpenTimelineIO
 or join our discussion forum: https://lists.aswf.io/g/otio-discussion
-
