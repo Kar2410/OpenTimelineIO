@@ -16,7 +16,7 @@ Track* track_trimmed_to_range(Track* in_track, TimeRange trim_range, ErrorStatus
     
     std::vector<Composable*> children_copy (new_track->children().begin(),
                                             new_track->children().end());
-    
+
     for (size_t i = children_copy.size(); i--; ) {
         Composable* child = children_copy[i];
         auto child_range_it = track_map.find(child);
@@ -27,7 +27,10 @@ Track* track_trimmed_to_range(Track* in_track, TimeRange trim_range, ErrorStatus
         }
         
         auto child_range = child_range_it->second;
-        if (!trim_range.overlaps(child_range)) {
+        if (!trim_range.overlaps(child_range) && !child_range.overlaps(trim_range) &&
+            !trim_range.begins(child_range) && !child_range.begins(trim_range) &&
+            !trim_range.finishes(child_range) && !child_range.finishes(trim_range) &&
+            !trim_range.contains(child_range) && !child_range.contains(trim_range)) {
             new_track->remove_child(static_cast<int>(i), error_status);
             if (*error_status) {
                 return nullptr;
