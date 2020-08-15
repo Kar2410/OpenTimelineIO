@@ -1,0 +1,103 @@
+package io.opentimeline.opentimelineio;
+
+import io.opentimeline.OTIONative;
+import io.opentimeline.opentime.TimeRange;
+
+public class Clip extends Item {
+
+    protected Clip() {
+    }
+
+    Clip(OTIONative otioNative) {
+        this.nativeManager = otioNative;
+    }
+
+    public Clip(
+            String name,
+            MediaReference mediaReference,
+            TimeRange sourceRange,
+            AnyDictionary metadata) {
+        this.initObject(
+                name,
+                mediaReference,
+                sourceRange,
+                metadata);
+    }
+
+    public Clip(ClipBuilder builder) {
+        this.initObject(
+                builder.name,
+                builder.mediaReference,
+                builder.sourceRange,
+                builder.metadata
+        );
+    }
+
+    private void initObject(String name,
+                            MediaReference mediaReference,
+                            TimeRange sourceRange,
+                            AnyDictionary metadata) {
+        this.initialize(
+                name,
+                mediaReference,
+                sourceRange,
+                metadata);
+        this.nativeManager.className = this.getClass().getCanonicalName();
+    }
+
+    private native void initialize(String name,
+                                   MediaReference mediaReference,
+                                   TimeRange sourceRange,
+                                   AnyDictionary metadata);
+
+    public static class ClipBuilder {
+        private String name = "";
+        private MediaReference mediaReference = null;
+        private TimeRange sourceRange = null;
+        private AnyDictionary metadata = new AnyDictionary();
+
+        public ClipBuilder() {
+        }
+
+        public ClipBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ClipBuilder setMediaReference(MediaReference mediaReference) {
+            this.mediaReference = mediaReference;
+            return this;
+        }
+
+        public ClipBuilder setSourceRange(TimeRange sourceRange) {
+            this.sourceRange = sourceRange;
+            return this;
+        }
+
+        public ClipBuilder setMetadata(AnyDictionary metadata) {
+            this.metadata = metadata;
+            return this;
+        }
+
+        public Clip build() {
+            return new Clip(this);
+        }
+    }
+
+    public native void setMediaReference(MediaReference mediaReference);
+
+    public native MediaReference getMediaReference();
+
+    public native TimeRange getAvailableRange(ErrorStatus errorStatus);
+
+    @Override
+    public String toString() {
+        return this.getClass().getCanonicalName() + "" +
+                "(" +
+                "name=" + this.getName() +
+                ", mediaReference=" + this.getMediaReference() +
+                ", sourceRange=" + this.getSourceRange() +
+                ", metadata=" + this.getMetadata() +
+                ")";
+    }
+}

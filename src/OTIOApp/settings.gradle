@@ -1,0 +1,3 @@
+include ':otioview'
+include ':app'
+rootProject.name = "OTIOApp"

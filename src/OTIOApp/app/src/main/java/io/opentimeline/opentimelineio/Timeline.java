@@ -1,0 +1,104 @@
+package io.opentimeline.opentimelineio;
+
+import io.opentimeline.OTIONative;
+import io.opentimeline.opentime.RationalTime;
+import io.opentimeline.opentime.TimeRange;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Timeline extends SerializableObjectWithMetadata {
+
+    protected Timeline() {
+    }
+
+    Timeline(OTIONative otioNative) {
+        this.nativeManager = otioNative;
+    }
+
+    public Timeline(
+            String name,
+            RationalTime globalStartTime,
+            AnyDictionary metadata) {
+        this.initObject(name, globalStartTime, metadata);
+    }
+
+    public Timeline(TimelineBuilder builder) {
+        this.initObject(
+                builder.name,
+                builder.globalStartTime,
+                builder.metadata);
+    }
+
+    private void initObject(String name,
+                            RationalTime globalStartTime,
+                            AnyDictionary metadata) {
+        this.initialize(name, globalStartTime, metadata);
+        this.nativeManager.className = this.getClass().getCanonicalName();
+    }
+
+    private native void initialize(String name,
+                                   RationalTime globalStartTime,
+                                   AnyDictionary metadata);
+
+    public static class TimelineBuilder {
+        private String name = "";
+        private RationalTime globalStartTime = null;
+        private AnyDictionary metadata = new AnyDictionary();
+
+        public TimelineBuilder() {
+        }
+
+        public TimelineBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public TimelineBuilder setGlobalStartTime(RationalTime globalStartTime) {
+            this.globalStartTime = globalStartTime;
+            return this;
+        }
+
+        public TimelineBuilder setMetadata(AnyDictionary metadata) {
+            this.metadata = metadata;
+            return this;
+        }
+
+        public Timeline build() {
+            return new Timeline(this);
+        }
+    }
+
+    public native Stack getTracks();
+
+    public native void setTracks(Stack stack);
+
+    public native RationalTime getGlobalStartTime();
+
+    public native void setGlobalStartTime(RationalTime globalStartTime);
+
+    public native RationalTime getDuration(ErrorStatus errorStatus);
+
+    public native TimeRange getRangeOfChild(Composable child, ErrorStatus errorStatus);
+
+    public List<Track> getAudioTracks() {
+        return Arrays.asList(getAudioTracksNative());
+    }
+
+    private native Track[] getAudioTracksNative();
+
+    public List<Track> getVideoTracks() {
+        return Arrays.asList(getVideoTracksNative());
+    }
+
+    private native Track[] getVideoTracksNative();
+
+    @Override
+    public String toString() {
+        return this.getClass().getCanonicalName() +
+                "(" +
+                "name=" + this.getName() +
+                ", tracks=" + this.getTracks().toString() +
+                ")";
+    }
+}
