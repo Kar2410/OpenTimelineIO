@@ -27,6 +27,9 @@ set(OPENTIMELINEIO_HEADER_FILES
     stack.h
     stackAlgorithm.h
     stringUtils.h
+    subtitles.h
+    timedText.h
+    timedTextStyle.h
     timeEffect.h
     timeline.h
     track.h
@@ -62,6 +65,9 @@ add_library(opentimelineio SHARED
             stack.cpp
             stackAlgorithm.cpp
             stringUtils.cpp
+            subtitles.cpp
+            timedText.cpp
+            timedTextStyle.cpp
             timeEffect.cpp
             timeline.cpp
             track.cpp
