@@ -25,6 +25,7 @@
 #include "opentimelineio/timedTextStyle.h"
 #include "opentimelineio/serializableCollection.h"
 #include "opentimelineio/stack.h"
+#include "opentimelineio/subtitles.h"
 #include "opentimelineio/unknownSchema.h"
 
 #include "otio_utils.h"
@@ -41,6 +42,9 @@ using EffectVectorProxy =
 
 using TrackVectorProxy =
     MutableSequencePyAPI<std::vector<SerializableObject::Retainer<Track>>, Track*>;
+
+using TimedTextVectorProxy =
+    MutableSequencePyAPI<std::vector<SerializableObject::Retainer<TimedText>>, TimedText*>;
 
 using SOWithMetadata = SerializableObjectWithMetadata;
 
@@ -332,6 +336,8 @@ static void define_bases2(py::module m) {
 }
 
 static void define_items_and_compositions(py::module m) {
+    TimedTextVectorProxy::define_py_class(m, "TimedTextVector");
+
     py::class_<Item, Composable, managing_ptr<Item>>(m, "Item", py::dynamic_attr())
         .def(py::init([](std::string name, optional<TimeRange> source_range,
                          py::object effects, py::object markers, py::object metadata) {
@@ -609,6 +615,41 @@ static void define_items_and_compositions(py::module m) {
             })
         .def("video_tracks", &Timeline::video_tracks)
         .def("audio_tracks", &Timeline::audio_tracks);
+
+    auto subtitles_class = py::class_<Subtitles, Item, managing_ptr<Subtitles>>(m, "Subtitles", py::dynamic_attr());
+
+    py::enum_<Subtitles::DisplayAlignment>(subtitles_class, "DisplayAlignment", "Attribute used to specify the alignment of block areas in the block progression direction.")
+            .value("before", Subtitles::DisplayAlignment::before, "")
+            .value("after", Subtitles::DisplayAlignment::after, "")
+            .value("center", Subtitles::DisplayAlignment::center, "")
+            .value("justify", Subtitles::DisplayAlignment::justify, "");
+
+    subtitles_class
+            .def(py::init([](float extent_x, float extent_y, float padding_x, float padding_y,
+                             std::string background_color, float background_opacity, Subtitles::DisplayAlignment display_alignment,
+                             py::object timed_texts) {
+                     return new Subtitles(extent_x, extent_y, padding_x, padding_y,
+                                          background_color, background_opacity, display_alignment,
+                                          py_to_vector<TimedText*>(timed_texts));
+                 }),
+                 "extent_x"_a = 0.f,
+                 "extent_y"_a = 0.f,
+                 "padding_x"_a = 0.f,
+                 "padding_y"_a = 0.f,
+                 "background_color"_a = std::string(),
+                 "background_opacity"_a = 0.f,
+                 "display_alignment"_a = Subtitles::DisplayAlignment::after,
+                 "timed_texts"_a = py::none())
+            .def_property("extent_x", &Subtitles::extent_x, &Subtitles::set_extent_x)
+            .def_property("extent_y", &Subtitles::extent_y, &Subtitles::set_extent_y)
+            .def_property("padding_x", &Subtitles::padding_x, &Subtitles::set_padding_x)
+            .def_property("padding_y", &Subtitles::padding_y, &Subtitles::set_padding_y)
+            .def_property("background_color", &Subtitles::background_color, &Subtitles::set_background_color)
+            .def_property("background_opacity", &Subtitles::background_opacity, &Subtitles::set_background_opacity)
+            .def_property("display_alignment", &Subtitles::display_alignment, &Subtitles::set_display_alignment)
+            .def_property_readonly("timed_texts", [](Subtitles* subtitles) {
+                return ((TimedTextVectorProxy*) &subtitles->timed_texts());
+            });
 }
 
 static void define_effects(py::module m) {
