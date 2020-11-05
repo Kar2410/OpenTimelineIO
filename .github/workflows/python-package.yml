@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest,]
-        python-version: [3.7, 3.8]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -38,6 +38,7 @@ jobs:
     - name: Build wheels
       env:
         CIBW_ENVIRONMENT: "CXXFLAGS='-DCXX_COVERAGE=1'"
+        CIBW_BUILD: cp27-* cp37-* cp38-*
         CIBW_DEPENDENCY_VERSIONS: latest
         CIBW_BEFORE_BUILD: pip install cmake
         CIBW_BEFORE_TEST: pip install coverage
@@ -45,3 +46,6 @@ jobs:
         CIBW_TEST_COMMAND: pytest /project/tests
       run: |
           python -m cibuildwheel --output-dir wheelhouse
+    - uses: actions/upload-artifact@v2
+      with:
+          path: ./wheelhouse/*.whl
