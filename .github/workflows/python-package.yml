@@ -29,7 +29,7 @@ jobs:
     - name: Install Tox and any other packages
       run: |
         pip install tox
-        if ([ "$RUNNER_OS" == "Linux" ]; then
+        if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt install lcov
         elif [ "$RUNNER_OS" == "Windows" ]; then
               choco install lcov
