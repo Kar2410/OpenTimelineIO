@@ -38,6 +38,7 @@ jobs:
     - name: Build wheels
       env:
         CIBW_ENVIRONMENT: "CXXFLAGS='-DCXX_COVERAGE=1'"
+        CIBW_DEPENDENCY_VERSIONS: latest
         CIBW_TEST_COMMAND: pytest ./tests
       run: |
           python -m cibuildwheel --output-dir wheelhouse
