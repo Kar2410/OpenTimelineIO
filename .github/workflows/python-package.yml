@@ -34,7 +34,11 @@ jobs:
         elif [ "$RUNNER_OS" == "Windows" ]; then
               choco install lcov
         elif [ "$RUNNER_OS" == "macOS" ]; then
-              brew install lcov;
+              brew install lcov
+        else
+              echo "$RUNNER_OS not supported"
+              exit 1
+        fi
     - name: Build and Test
       run: tox -e py
     - name: Upload coverage to Codecov
