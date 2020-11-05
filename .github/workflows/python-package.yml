@@ -12,9 +12,10 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [macos-latest,]
         python-version: [2.7, 3.7, 3.8]
 
     steps:
@@ -28,7 +29,12 @@ jobs:
     - name: Install Tox and any other packages
       run: |
         pip install tox
-        sudo apt install lcov
+        if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt install lcov
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+              choco install lcov
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+              brew install lcov
     - name: Build and Test
       run: tox -e py
     - name: Upload coverage to Codecov
