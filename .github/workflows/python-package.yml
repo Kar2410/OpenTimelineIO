@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest,]
         python-version: [2.7, 3.7, 3.8]
 
     steps:
@@ -26,25 +26,18 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Tox and any other packages
+    - name: Install cibuildwheel
       run: |
-        pip install tox
-        if [ "$RUNNER_OS" == "Linux" ]; then
-              sudo apt install lcov
-        elif [ "$RUNNER_OS" == "Windows" ]; then
-              choco install lcov
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-              brew install lcov
-        else
-              echo "$RUNNER_OS not supported"
-              exit 1
-        fi
-      shell: bash
-    - name: Build and Test
-      run: tox -e py
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        flags: unittests
-        name: opentimelineio-codecov
-        fail_ci_if_error: true
+          python -m pip install cibuildwheel==1.6.4
+          
+    - name: Install Visual C++ for Python 2.7
+      if: runner.os == 'Windows'
+      run: |
+          choco install vcpython27 -f -y
+          
+    - name: Build wheels
+      env:
+        CIBW_ENVIRONMENT: "OTIO_CXX_COVERAGE_BUILD = 1"
+        CIBW_TEST_COMMAND: pytest ./tests
+      run: |
+          python -m cibuildwheel --output-dir wheelhouse
